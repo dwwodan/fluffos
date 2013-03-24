@@ -1475,6 +1475,8 @@ static void handle_configure() {
     check_include("INCL_SYS_CRYPT_H", "sys/crypt.h");
     check_include("INCL_CRYPT_H", "crypt.h");
     check_include("INCL_MALLOC_H", "my_malloc.h");
+    check_include("INCL_ALLOCA_H", "alloca.h");
+    check_include("INCL_EXECINFO_H", "execinfo.h");
 
     /* for NeXT */
     if (!check_include("INCL_MACH_MACH_H", "mach/mach.h"))
