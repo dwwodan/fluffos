@@ -2277,13 +2277,9 @@ f_read_file (void)
     else start = 0;
 
     str = read_file(sp->u.string, start, len);
-
-    pop_stack();
-    if (!str) {
-      push_svalue(&const0);
-    } else {
-      push_malloced_string(str);
-    }
+    free_string_svalue(sp);
+    if (!str) *sp = const0;
+    else { sp->subtype = STRING_MALLOC; sp->u.string = str; }
 }
 #endif
 
