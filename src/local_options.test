@@ -392,11 +392,11 @@
  *                      calls to functions in this object by objects that
  *                      inherit it.
  * PRAGMA_OPTIMIZE:     make a second pass over the generated code to
- *                      optimize it further.  Currently does jump threading.
+ *                      optimize it further.  Currently maybe broken.
  * PRAGMA_ERROR_CONTEXT:include some text telling where on the line a
  *                      compilation error occured.
  */
-#define DEFAULT_PRAGMAS PRAGMA_WARNINGS + PRAGMA_SAVE_TYPES + PRAGMA_ERROR_CONTEXT + PRAGMA_OPTIMIZE
+#define DEFAULT_PRAGMAS PRAGMA_WARNINGS + PRAGMA_SAVE_TYPES + PRAGMA_ERROR_CONTEXT
 
 /* supress warnings about unused arguments; only warn about unused local
  * variables.  Makes older code (where argument names were required) compile
@@ -878,7 +878,7 @@
 #define PACKAGE_ASYNC
 
 /*PACKAGE_SHA1: adds a function to calculate the sha1 hash of a string sha1(string)*/
-#undef PACKAGE_SHA1
+#define PACKAGE_SHA1
 
 /*PACKAGE_CRYPTO: adds a function that does multiple hash types hash(hash, string), needs openssl lib and includes and -lssl in system_libs*/
 #undef PACKAGE_CRYPTO

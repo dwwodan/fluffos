@@ -9,6 +9,7 @@
 int outoftime = 0;
 struct timeval tv;
 int lasttime;
+LPC_INT max_cost;
 
 void set_eval(int etime){
 #ifndef WIN32
@@ -33,7 +34,7 @@ void set_eval(int etime){
 	outoftime = 0;
 }
 
-int get_eval(){
+LPC_INT get_eval(){
 #ifndef WIN32
 #ifdef POSIX_TIMERS
 	return posix_eval_timer_get();
