@@ -21,8 +21,11 @@ void init_posix_timers(void)
 	sev.sigev_signo = SIGVTALRM;
 	sev.sigev_notify = SIGEV_SIGNAL;
 	sev.sigev_value.sival_int = 0;
-
+#ifndef __CYGWIN__
 	i = timer_create(CLOCK_THREAD_CPUTIME_ID, &sev, &eval_timer_id);
+#else
+	i = timer_create(CLOCK_REALTIME, &sev, &eval_timer_id);
+#endif
 	if (i < 0) {
 		perror("init_posix_timers: timer_create");
 		exit(-1);
@@ -40,7 +43,7 @@ void init_posix_timers(void)
 }
 
 /* Set the eval_timer to the given number of microseconds */
-void posix_eval_timer_set(int micros)
+void posix_eval_timer_set(LPC_INT micros)
 {
 	struct itimerspec it;
 
@@ -54,7 +57,7 @@ void posix_eval_timer_set(int micros)
 }
 
 /* Return the number of microseconds remaining on the eval_timer */
-int posix_eval_timer_get(void)
+LPC_INT posix_eval_timer_get(void)
 {
 	struct itimerspec it;
 
@@ -62,7 +65,7 @@ int posix_eval_timer_get(void)
 		return 100;
 	}
 
-	return it.it_value.tv_sec * 1000000 + it.it_value.tv_nsec / 1000;
+	return it.it_value.tv_sec * (LPC_INT)(1000000) + it.it_value.tv_nsec / 1000;
 }
 
 #endif
