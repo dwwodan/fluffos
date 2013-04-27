@@ -38,7 +38,7 @@ DRIVER_BIN=driver
 # Set INSTALL_DIR to the directory where you want to install the executables.
 INSTALL_DIR="../bin"
 
-#Enable warnings from the compiler (gcc), if wanted.
+#Enable warnings from the compiler (g++), if wanted.
 #WARN=-Wall
  
 #PIPE=-pipe
@@ -50,7 +50,7 @@ INSTALL_DIR="../bin"
 # Use moncontrol(1) efun to enable profiling and moncontrol(0) to turn
 # it off.
 #PROFILE_ON="-DPROFILE_ON"
-# Uncomment this if you want to enable profiling of the driver (gcc)
+# Uncomment this if you want to enable profiling of the driver (g++)
 #PROFIL="-pg -DPROFILING $(PROFILE_ON)"
  
 # Enable run time debugging
@@ -77,7 +77,7 @@ INSTALL_DIR="../bin"
 #
 # -O is usually a safe level of optimization for most compilers
 #OPTIMIZE="-O"
-# high optimization for gcc:
+# high optimization for g++:
 #OPTIMIZE="-O2 -fstrength-reduce"
 # uncomment below for RS/6000(AIX) xlc compiler only.
 # remove the -Q if xlc complains.
@@ -118,9 +118,9 @@ INSTALL_DIR="../bin"
 #Static for compiling Discworld on MINGW
 #OSFLAGS=-static
 
-# try uncommenting this if you are using gcc and at runtime you see socket
+# try uncommenting this if you are using g++ and at runtime you see socket
 # errors saying that the "set socket nonblocking" operation is not supported.
-# That error is caused by old-style macros (that gcc doesn't normally grok)
+# That error is caused by old-style macros (that g++ doesn't normally grok)
 # used by ioctl on some systems.
 #NEED_OLD_CPP=-traditional-cpp
 
@@ -130,11 +130,11 @@ INSTALL_DIR="../bin"
 
 echo "Trying out some stuff to see what works; ignore errors ..."
 
-# Mac OS X needs this in order to build properly with gcc < 3
+# Mac OS X needs this in order to build properly with g++ < 3
 if test "`uname`" = "Darwin"; then
-    GCC_MAJOR="`gcc -v 2>&1 | grep "gcc version" | cut -d ' ' -f 3 | cut -d '.' -f 1`"
-    GCC_MINOR="`gcc -v 2>&1 | grep "gcc version" | cut -d ' ' -f 3 | cut -d '.' -f 2`"
-    if test "$GCC_MAJOR" -eq "2"; then
+    G++_MAJOR="`g++ -v 2>&1 | grep "g++ version" | cut -d ' ' -f 3 | cut -d '.' -f 1`"
+    G++_MINOR="`g++ -v 2>&1 | grep "g++ version" | cut -d ' ' -f 3 | cut -d '.' -f 2`"
+    if test "$G++_MAJOR" -eq "2"; then
         NEED_OLD_CPP=-traditional-cpp
     fi
 fi
@@ -201,15 +201,15 @@ if test $? -eq 0; then
         OPTIMIZE=${OPTIMIZE-"-O3 -Q -qMAXMEM=16000"}
     fi
 else
-    gcc comptest.c
+    g++ comptest.c
     if test $? -eq 0; then
-        CC="gcc"
+        CC="g++"
         if test "${DEBUG-x}" = "x"; then
             OPTIMIZE=${OPTIMIZE-"-O3"}
         fi
-        $CC -std=c99 -D_GNU_SOURCE comptest.c
+        $CC -std=c++0x -D_GNU_SOURCE comptest.c
         if test $? -eq 0; then
-            CC="$CC -std=c99 -D_GNU_SOURCE"
+            CC="$CC -std=c++0x -D_GNU_SOURCE"
         fi
         $CC -m64 comptest.c
         if test $? -eq 0; then
@@ -236,7 +236,7 @@ else
                     OPTIMIZE=${OPTIMIZE-"-O"}
 		    cat >comptest.c <<END
 #ifndef __GNUC__
-Oh darn it's not gcc
+Oh darn it's not g++
 #endif
 END
 		    cc comptest.c
@@ -254,7 +254,7 @@ END
 fi
 
 #
-# are we using gcc on a 486?
+# are we using g++ on a 486?
 #
 if test $GNUC; then
     tmp=`uname -m`

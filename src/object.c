@@ -1780,12 +1780,7 @@ int restore_object (object_t * ob, const char * file, int noclear)
     }
     error_context_t econ;
     save_context(&econ);
-    if (SETJMP(econ.context)){
-        restore_context(&econ);
-        pop_context(&econ);
-        gzclose(gzf);
-        return 0;
-    }
+     try{
     while((restore_object_from_gzip(ob, gzf, noclear, &count))){
 	  count++;
           gzseek(gzf, 0, SEEK_SET);
@@ -1794,6 +1789,12 @@ int restore_object (object_t * ob, const char * file, int noclear)
 	  }
     }
     gzclose(gzf);
+    }catch(const char *){
+    	restore_context(&econ);
+    	        pop_context(&econ);
+    	        gzclose(gzf);
+    	        return 0;
+    }
     pop_context(&econ);
 #else
     f = fopen(file, "r");

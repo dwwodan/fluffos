@@ -11,7 +11,7 @@ struct timeval tv;
 int lasttime;
 LPC_INT max_cost;
 
-void set_eval(int etime){
+void set_eval(long etime){
 #ifndef WIN32
 	long diff;
 	gettimeofday(&tv, NULL);

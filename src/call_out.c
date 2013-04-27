@@ -211,14 +211,7 @@ void call_out()
 				free_call(cop);
 				cop = 0;
 			} else {
-				if (SETJMP(econ.context)) {
-					restore_context(&econ);
-					if (max_eval_error) {
-						debug_message("Maximum evaluation cost reached while trying to process call_outs\n");
-						pop_context(&econ);
-						return;
-					}
-				} else {
+				 try {
 					object_t *ob;
 
 					ob = cop->ob;
@@ -272,6 +265,13 @@ void call_out()
 					}
 
 					restore_command_giver();
+				}catch(const char *){
+					restore_context(&econ);
+					if (max_eval_error) {
+						debug_message("Maximum evaluation cost reached while trying to process call_outs\n");
+						pop_context(&econ);
+						return;
+					}
 				}
 				free_called_call(cop);
 				cop = 0;

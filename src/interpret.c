@@ -3835,7 +3835,10 @@ do_catch (char * pc, unsigned short new_pc_offset)
   csp->num_local_variables = (csp - 1)->num_local_variables; /* marion */
 #endif
 
-  if (SETJMP(econ.context)) {
+  try{assign_svalue(&catch_value, &const1);
+  /* note, this will work, since csp->extern_call won't be used */
+  eval_instruction(pc);
+  }catch(const char *){
     /*
      * They did a throw() or error. That means that the control stack
      * must be restored manually here.
@@ -3854,10 +3857,6 @@ do_catch (char * pc, unsigned short new_pc_offset)
       pop_context(&econ);
       error("Can't catch too deep recursion error.\n");
     }
-  } else {
-    assign_svalue(&catch_value, &const1);
-    /* note, this will work, since csp->extern_call won't be used */
-    eval_instruction(pc);
   }
   pop_context(&econ);
 }
@@ -4467,11 +4466,11 @@ safe_apply (const char * fun, object_t * ob, int num_arg, int where)
 
   if (!save_context(&econ))
     return 0;
-  if (!SETJMP(econ.context)) {
+  try{
     if (!(ob->flags & O_DESTRUCTED)) {
       ret = apply(fun, ob, num_arg, where);
     } else ret = 0;
-  } else {
+  } catch(const char *) {
     restore_context(&econ);
     pop_n_elems(num_arg); /* saved state had args on stack already */
     ret = 0;
@@ -4794,16 +4793,11 @@ const char *dump_trace (int how)
    * won't make the object_name() apply and save_context() might fail
    * here (too deep recursion)
    */
-  if (!too_deep_error) {
-    if (!save_context(&econ))
-      return 0;
-    context_saved = 1;
-    if (SETJMP(econ.context)) {
-      restore_context(&econ);
-      pop_context(&econ);
-      return 0;
-    }
-  }
+
+  if (!save_context(&econ))
+    return 0;
+  try{
+
 #endif
 
 #ifdef TRACE_CODE
@@ -4978,8 +4972,11 @@ const char *dump_trace (int how)
 #endif
   debug_message("--- end trace ---\n");
 #if defined(ARGUMENTS_IN_TRACEBACK) || defined(LOCALS_IN_TRACEBACK)
-  if (context_saved)
-    pop_context(&econ);
+  }catch(const char *){
+	  restore_context(&econ);
+	  ret = 0;
+  }
+  pop_context(&econ);
 #endif
   return ret;
 }

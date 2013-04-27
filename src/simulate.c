@@ -1614,7 +1614,7 @@ static int num_mudlib_error = 0;
 void throw_error()
 {
     if (((current_error_context->save_csp + 1)->framekind & FRAME_MASK) == FRAME_CATCH) {
-        LONGJMP(current_error_context->context, 1);
+        throw("throw error");
         fatal("Throw_error failed!");
     }
     error("Throw with no catch.\n");
@@ -1735,16 +1735,16 @@ void error_handler (char * err)
         catch_value.type = T_STRING;
         catch_value.subtype = STRING_MALLOC;
         catch_value.u.string = string_copy(err, "caught error");
-        LONGJMP(current_error_context->context, 1);
+        throw("error handler");
         fatal("Catch() longjump failed");
     }
 
     if (num_error > 0) {
         /* This can happen via errors in the object_name() apply. */
         debug_message("Error '%s' while trying to print error trace -- trace suppressed.\n", err);
-	too_deep_error = max_eval_error = 0;
+        too_deep_error = max_eval_error = 0;
         if (current_error_context)
-            LONGJMP(current_error_context->context, 1);
+            throw("error handler error");
         fatal("LONGJMP failed or no error context for error.\n");
     }
 
@@ -1817,7 +1817,7 @@ void error_handler (char * err)
     num_error--;
     too_deep_error = max_eval_error = 0;
     if (current_error_context)
-        LONGJMP(current_error_context->context, 1);
+        throw("error handler error2");
     fatal("LONGJMP failed or no error context for error.\n");
 }
 
