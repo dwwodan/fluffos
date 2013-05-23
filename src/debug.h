@@ -1,7 +1,7 @@
 /* debug.h: added by Truilkan: 92/02/08 */
 
 /* this include file adds some nice debugging capabilities.  You can
-   use -DDEBUG_MACRO in CFLAGS in the Makefile to let the debug code
+   use -DDEBUG_MACRO in the Makefile to let the debug code
    be compiled in.  If DEBUG_MACRO is not defined then the debug code
    is removed by the C preprocessor.  The global variable debug_level
    is defined in main.c.  The debug_level typically starts out at zero
@@ -19,9 +19,9 @@
 #ifndef _FUNC_SPEC_
 extern int debug_level;
 
-void handle_debug_level (char *);
-void debug_level_set (const char *);
-void debug_level_clear (const char *);
+void handle_debug_level(char *);
+void debug_level_set(const char *);
+void debug_level_clear(const char *);
 
 #ifdef DEBUG_MACRO
 #define debug(x,y) if (debug_level & DBG_##x) { printf("%s: ", #x); printf y; putchar('\n'); fflush(stdout); }
@@ -30,14 +30,14 @@ void debug_level_clear (const char *);
 #endif
 
 /* Would be nice to have tons of these; should go to arbitrary bitsets */
-#define DBG_call_out	 	1
-#define DBG_addr_server		2
-#define DBG_d_flag		4
-#define DBG_connections		8
-#define DBG_mapping		16
-#define DBG_sockets		32
-#define DBG_comp_func_tab	64
-#define DBG_LPC			128
-#define DBG_LPC_line		256
+#define DBG_call_out        1
+#define DBG_addr_server     2
+#define DBG_d_flag      4
+#define DBG_connections     8
+#define DBG_mapping     16
+#define DBG_sockets     32
+#define DBG_comp_func_tab   64
+#define DBG_LPC         128
+#define DBG_LPC_line        256
 
 #endif

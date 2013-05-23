@@ -4,8 +4,8 @@ if test $# -ne 0; then
   case $1 in
     develop)
       echo Preparing to build developmental version of MudOS driver ...
-      OPTIMIZE="-O2"
-      DEBUG="-g -Wall -Wundef -pedantic -D_FORTIFY_SOURCE=2 -DDEBUG -DDEBUG_MACRO"
+      OPTIMIZE="-O0"
+      DEBUG="-g -Wall -pedantic -D_FORTIFY_SOURCE=2 -DDEBUG -DDEBUG_MACRO"
       ;;
     debug)
       echo Preparing to build debugging version of MudOS driver ...
@@ -21,111 +21,36 @@ else
   echo Preparing to build standard driver ...
 fi
 
-# Change this to use another C compiler/preprocessor
-if [ "`uname -s`" = "Darwin" ]; then # OSX gcc is very outdated.
-  CC=clang
-else
-  CC=${CC:-"gcc"}
-fi
-
 # TODO: remove need for _GNU_SOURCE
-CFLAGS="--std=c99 -D_GNU_SOURCE"
+CXXFLAGS="--std=c++0x -D_GNU_SOURCE -fno-omit-frame-pointer"
 
-# Change to -m32 to compile under 32bit.
-COMPILER_FLAGS=${COMPILER_FLAGS:-"-m64 -march=native"}
+# By default driver compile to native environment, you can
+# add "-m64" to force compile under 64bit, "-m32" for 32bit.
+COMPILER_FLAGS=${COMPILER_FLAGS:-"-march=native"}
 
 OPTIMIZE=${OPTIMIZE:-"-O3"}
 DEBUG=${DEBUG:-"-g"}
 
-# Only support bison for now.
-YACC="bison -y"
-
-# Change this if want to use another 'make'
+# Change this if you want to use another make.
 MAKE=make
-INSTALL=install
 
 # change this if you wish the driver binary to be named something else
+# no suffix is needed.
 DRIVER_BIN=driver
 
 # Set INSTALL_DIR to the directory where you want to install the executables.
-INSTALL_DIR="../bin"
+INSTALL_DIR=`dirname $(pwd)`/bin
 
-#Enable warnings from the compiler (gcc), if wanted.
+#Enable warnings from the compiler (g++), if wanted.
 #WARN=-Wall
 
 # Location of libmsgql.a, if you are using PACKAGE_DB
 #EXTRALIBS=-L/usr/local/lib -lmsql
 ####### END OF USER CONFIGURABLE OPTIONS
 
-CFLAGS="$CFLAGS $COMPILER_FLAGS $WARN $OPTIMIZE $DEBUG"
-
-#
-# Determine if running under Cygwin-32 and use a.exe instead
-# of a.out if so
-#
-if test $CYGWIN; then
-  A_OUT=a.exe
-  echo Using a.exe for Cygwin GNU compiler default executable
-else
-  A_OUT=a.out
-  echo Using standard a.out for compiler default executable
-fi
-
-#
-# Determine system type
-#
-cat >comptest.c <<END
-#include <stdio.h>
-#include "arch.h"
-int main() {
-printf("%s\n", ARCH);
-}
-END
-
-$CC $CFLAGS -o $A_OUT -flto comptest.c
-
-if [ $? -eq 0 ]; then
-  CFLAGS="$CFLAGS -flto"
-else
-  $CC $CFLAGS -o $A_OUT comptest.c
-  if [ $? -ne 0 ]; then
-    echo "FATAL ERROR: test compile failed."
-    exit 1
-  fi
-fi
-
-ARCH=`./$A_OUT`
-
-rm $A_OUT
-rm comptest.c
+CXXFLAGS="$CXXFLAGS $COMPILER_FLAGS $WARN $OPTIMIZE $DEBUG"
 
 # Force an reconfigure.
 rm configure.h
+CC=$CC CXXFLAGS=$CXXFLAGS MAKE=$MAKE ARCH=$ARCH DRIVER_BIN=$DRIVER_BIN OPTIMIZE=$OPTIMIZE ./configure --bindir=$INSTALL_DIR && $MAKE help
 
-echo MAKE=$MAKE >Makefile
-echo SHELL=/bin/sh >>Makefile
-echo DRIVER_BIN=$DRIVER_BIN >>Makefile
-echo STRFUNCS=$STRFUNCS >>Makefile
-echo INSTALL=$INSTALL >>Makefile
-echo INSTALL_DIR=$INSTALL_DIR >>Makefile
-echo OPTIMIZE=$OPTIMIZE >>Makefile
-
-echo CC=$CC >>Makefile
-echo CFLAGS=$CFLAGS >>Makefile
-echo YACC=$YACC >>Makefile
-echo A=a >>Makefile
-echo O=o >>Makefile
-echo A_OUT=$A_OUT >>Makefile
-
-cat Makefile.in >> Makefile
-
-echo "***************** Configuration completed **************"
-echo "Compiling FluffOS on $ARCH."
-echo
-echo "Using $INSTALL to install binaries in $INSTALL_DIR."
-echo "Using $CC -E $CFLAGS for preprocessing."
-echo "Using $CC $CFLAGS to compile."
-echo "Using $YACC to make the compiler."
-echo "Edit Makefile if this is not what you want"
-echo
-echo "Otherwise, type '$MAKE' to build FluffOS, then '$MAKE install'."

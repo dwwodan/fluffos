@@ -52,8 +52,8 @@
 #define HTABLE_SIZE             CONFIG_INT(__SHARED_STRING_HASH_TABLE_SIZE__)
 #define OTABLE_SIZE             CONFIG_INT(__OBJECT_HASH_TABLE_SIZE__)
 #define INHERIT_CHAIN_SIZE      CONFIG_INT(__INHERIT_CHAIN_SIZE__)
-#define FD6_PORT		CONFIG_INT(__FD6_PORT__)
-#define FD6_KIND		CONFIG_INT(__FD6_KIND__)
+#define FD6_PORT        CONFIG_INT(__FD6_PORT__)
+#define FD6_KIND        CONFIG_INT(__FD6_KIND__)
 
 #ifdef USE_POSIX_SIGNALS
 #define sigblock(m) port_sigblock(m)
@@ -61,9 +61,6 @@
 #define signal(s,f) port_signal(s,f)
 #define sigsetmask(m)   port_sigsetmask(m)
 #endif
-
-#define SETJMP(x) setjmp(x)
-#define LONGJMP(x,y) longjmp(x,y)
 
 #define APPLY_CACHE_SIZE (1 << APPLY_CACHE_BITS)
 

@@ -1,14 +1,6 @@
 #ifndef MACROS_H
 #define MACROS_H
 
-#ifdef __STDC__
-#define ANSI_STRING_HACK(x) #x
-#define DONT_ASK_WHY(x) (x)
-#define WHERE (__FILE__ ":" DONT_ASK_WHY(x))
-#else
-#define WHERE "non-ansi compilers are a pain"
-#endif
-
 /*
  * Some useful macros...
  */
@@ -16,31 +8,10 @@
 #  define PROT_STDIO(x) (x ()
 #endif                          /* BUFSIZ */
 
-/* ANSI/K&R compatibility stuff;
- *
- * The correct way to prototype a function now is:
- *
- * foobar (int, char *);
- *
- * foobar (int x, char * y) { ... }
- */
-/* xlc can't handle an ANSI protoype followed by a K&R def, and varargs
- * functions must be done K&R (b/c va_dcl is K&R style) so don't prototype
- * vararg function arguments under AIX
- */
-#if defined(__STDC__) || defined(WIN32)
-#  define VOLATILE volatile
-#  define SIGNED signed
-#else                           /* __STDC__ */
-#  define VOLATILE
-#  define SIGNED
-#endif                          /* __STDC__ */
-
 /* do things both ways ... */
 #define V_START(vlist, last_arg) va_start(vlist, last_arg)
 #define V_VAR(type, var, vlist)
 #define SAFE(x) do { x } while (0)
- 
 
 /*
    Define for MALLOC, FREE, REALLOC, and CALLOC depend upon what malloc
@@ -112,7 +83,7 @@
 #  define DEBUG_CHECK1(x, y, a) if (x) fatal(y, a)
 #  define DEBUG_CHECK2(x, y, a, b) if (x) fatal(y, a, b)
 #else
-#  define IF_DEBUG(x) 
+#  define IF_DEBUG(x)
 #  define DEBUG_CHECK(x, y)
 #  define DEBUG_CHECK1(x, y, a)
 #  define DEBUG_CHECK2(x, y, a, b)
@@ -164,72 +135,51 @@
                          *x++ = ((char *)(&(y)))[6]; \
                          *x++ = ((char *)(&(y)))[7]
 
-#if SIZEOF_SHORT == 2
 #define COPY_SHORT(x, y) COPY2(x,y)
 #define LOAD_SHORT(x, y) LOAD2(x,y)
 #define STORE_SHORT(x, y) STORE2(x,y)
-#else
-#error shorts of size other than 2 not implemented
-#endif
 
-#if SIZEOF_LPC_INT == 4
-#define COPY_INT(x, y) COPY4(x,y)
-#define LOAD_INT(x, y) LOAD4(x,y)
-#define STORE_INT(x, y) STORE4(x,y)
-#else
-#if SIZEOF_LPC_INT == 8
+/* LPC INT */
 #define COPY_INT(x, y) COPY8(x,y)
 #define LOAD_INT(x, y) LOAD8(x,y)
 #define STORE_INT(x, y) STORE8(x,y)
-#else
-#error ints of size other than 4 not implemented
-#endif
-#endif
 
-#if SIZEOF_LPC_FLOAT == 8
+/* LPC FLOAT */
 #define COPY_FLOAT(x, y) COPY8(x,y)
 #define LOAD_FLOAT(x, y) LOAD8(x,y)
 #define STORE_FLOAT(x, y) STORE8(x,y)
-#else
-#error floats of size other than 8 not implemented
-#endif
 
-#if SIZEOF_PTR == 4
+#if SIZEOF_CHAR_P == 4
 #  define COPY_PTR(x, y) COPY4(x,y)
 #  define LOAD_PTR(x, y) LOAD4(x,y)
 #  define STORE_PTR(x, y) STORE4(x,y)
 
 #  define POINTER_INT intptr_t
 #  define INS_POINTER ins_pointer
-#else
-#  if SIZEOF_PTR == 8
+#elif SIZEOF_CHAR_P == 8
 #    define COPY_PTR(x, y) COPY8(x,y)
 #    define LOAD_PTR(x, y) LOAD8(x,y)
 #    define STORE_PTR(x, y) STORE8(x,y)
 
 #    define POINTER_INT intptr_t
 #    define INS_POINTER ins_pointer
-#  else
-#error pointers of size other than 4 or 8 not implemented
-#  endif
-#endif
-#if SIZEOF_LONGLONG != 8
-#error long long must be 8 bytes.
+#else
+#  error pointers of size other than 4 or 8 not implemented
 #endif
 #endif /* !defined(EDIT_SOURCE) && !defined(_FUNC_SPEC_) */
 
 #ifndef _FUNC_SPEC_
-   char *xalloc (int);
+char *xalloc(int);
 #  ifdef DEBUGMALLOC
-      char *int_string_copy (const char * const, char *);
-      char *int_string_unlink (const char *, char *);
-      char *int_new_string (int, char *);
-      char *int_alloc_cstring (const char *, char *);
+char *int_string_copy(const char *const, const char *);
+char *int_string_unlink(const char *, const char *);
+char *int_new_string(int, const char *);
+char *int_alloc_cstring(const char *, const char *);
 #  else
-      char *int_string_copy (const char * const);
-      char *int_string_unlink (const char *);
-      char *int_new_string (int);
-      char *int_alloc_cstring (const char *);
+char *int_string_copy(const char *const);
+char *int_string_unlink(const char *);
+char *int_new_string(int);
+char *int_alloc_cstring(const char *);
 #  endif
 #endif
 
@@ -243,14 +193,6 @@
 #   define string_unlink(x,y) int_string_unlink(x)
 #   define new_string(x,y) int_new_string(x)
 #   define alloc_cstring(x,y) int_alloc_cstring(x)
-#endif
-
-#ifndef INLINE
-#define INLINE
-#endif
-
-#ifndef INLINE_STATIC
-#  define INLINE_STATIC static INLINE
 #endif
 
 /* The ANSI versions must take an unsigned char, and must work on EOF.  These
@@ -268,5 +210,18 @@
 #define uisxdigit(x) isxdigit((unsigned char)x)
 #define uisascii(x) isascii((unsigned char)x)
 #define uisprint(x) isprint((unsigned char)x)
+
+/* Compare two number */
+#define COMPARE_NUMS(x,y) (((x) > (y) ? 1 : ((x) < (y) ? -1 : 0)))
+
+#define SIGNAL_ERROR SIG_ERR
+
+#ifdef CUSTOM_CRYPT
+#  define CRYPT(x, y) custom_crypt(x, y, 0)
+#  define OLDCRYPT(x, y) crypt(x, y)
+#else
+#  define CRYPT(x, y) crypt(x, y)
+#  define OLDCRYPT(x, y) crypt(x, y)
+#endif
 
 #endif
